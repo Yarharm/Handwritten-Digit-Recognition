@@ -1,6 +1,6 @@
 import numpy as np
 import scipy.special as spec
-
+import matplotlib.pyplot as plt
 
 # 3 layer neura network
 class NeuralNetwork:
@@ -64,5 +64,41 @@ class NeuralNetwork:
 
 
 # Main
-n = NeuralNetwork(3, 3, 3, 0.3)
-print(n.query([1.0, 0.5, -1.5]))
+
+# input, hidden and output nodes
+input_nodes = 784 # 28x28 image
+hidden_nodes = 100 # any reasonable number between 10 and 784, to avoid overfitting and underfitting
+output_nodes = 10 # number of possible numbers between [0..9]
+learning_rate = 0.3
+
+# create NN
+nn = NeuralNetwork(input_nodes, hidden_nodes, output_nodes, learning_rate)
+
+# TRAINING PHASE
+# load training data from the subset of MNIST.csv of 100 elements
+training_data = open("MNIST/mnist_train_100.csv", "r")
+training_list = training_data.readlines()
+training_data.close()
+
+# train NN
+for label in training_list:
+    # rescale inputs from the training_list in range (0.00, 1.00]
+    inputs = np.asfarray(label.split(',')[1:]) / 255 * 0.99 + 0.01
+    # create target array full of 0.01 and label of 0.99
+    targets = np.zeros(output_nodes) + 0.01
+    targets[int(label.split(',')[0])] = 0.99
+    nn.train(inputs, targets)
+
+# TESTING PHASE
+# load testing data from the subset of MNIST.csv of 10 elements
+testing_data = open("MNIST/mnist_test_10.csv", "r")
+testing_list = testing_data.readlines()
+testing_data.close()
+
+# test
+testing_subject = np.asfarray(testing_list[0].split(',')[1:]) / 255 * 0.99 + 0.01
+image = np.asfarray(testing_list[0].split(',')[1:]).reshape((28,28))
+plt.imshow(image, cmap="Greys", interpolation="None")
+plt.show()
+print(nn.query(testing_subject))
+
