@@ -2,7 +2,7 @@ import numpy as np
 import scipy.special as spec
 import matplotlib.pyplot as plt
 
-# 3 layer neura network
+# 3 layer neura network with stochastic gradient descend
 class NeuralNetwork:
     def __init__(self, input_nodes, hidden_nodes, output_nodes, learning_rate):
         # number of nodes for the input, hidden and output layers
@@ -61,44 +61,61 @@ class NeuralNetwork:
         final_in = np.dot(self.who, hidden_out)
         return self.activation_func(final_in)
 
-
-
 # Main
 
 # input, hidden and output nodes
 input_nodes = 784 # 28x28 image
 hidden_nodes = 100 # any reasonable number between 10 and 784, to avoid overfitting and underfitting
 output_nodes = 10 # number of possible numbers between [0..9]
-learning_rate = 0.3
+
+# Experimentally derived, through brute force
+learning_rate = 0.2
+
+# passes over the training dataset
+epochs = 2
 
 # create NN
 nn = NeuralNetwork(input_nodes, hidden_nodes, output_nodes, learning_rate)
 
-# TRAINING PHASE
+# TRAINING PHASE (For 2 epochs
 # load training data from the subset of MNIST.csv of 100 elements
-training_data = open("MNIST/mnist_train_100.csv", "r")
+training_data = open("MNIST/mnist_train_10k.csv", "r")
 training_list = training_data.readlines()
 training_data.close()
 
 # train NN
-for label in training_list:
-    # rescale inputs from the training_list in range (0.00, 1.00]
-    inputs = np.asfarray(label.split(',')[1:]) / 255 * 0.99 + 0.01
-    # create target array full of 0.01 and label of 0.99
-    targets = np.zeros(output_nodes) + 0.01
-    targets[int(label.split(',')[0])] = 0.99
-    nn.train(inputs, targets)
+for e in range(epochs):
+    for label in training_list:
+        # rescale inputs from the training_list in range (0.00, 1.00]
+        inputs = np.asfarray(label.split(',')[1:]) / 255 * 0.99 + 0.01
+        # create target array full of 0.01 and label of 0.99
+        targets = np.zeros(output_nodes) + 0.01
+        targets[int(label.split(',')[0])] = 0.99
+        nn.train(inputs, targets)
 
 # TESTING PHASE
 # load testing data from the subset of MNIST.csv of 10 elements
-testing_data = open("MNIST/mnist_test_10.csv", "r")
+testing_data = open("MNIST/mnist_test_1k.csv", "r")
 testing_list = testing_data.readlines()
 testing_data.close()
 
-# test
-testing_subject = np.asfarray(testing_list[0].split(',')[1:]) / 255 * 0.99 + 0.01
-image = np.asfarray(testing_list[0].split(',')[1:]).reshape((28,28))
-plt.imshow(image, cmap="Greys", interpolation="None")
-plt.show()
-print(nn.query(testing_subject))
+# score for each record in the test set
+score = []
 
+for record in testing_list:
+    correct_answer = int(record.split(',')[0])
+#    print(correct_answer, "correct answer")
+    #get inputs
+    inputs = np.asfarray(record.split(',')[1:]) / 255.0 * 0.99 + 0.01
+    outputs = nn.query(inputs)
+    # get label spitted by the NN
+    answer = np.argmax(outputs)
+#    print(answer, "network output")
+    # add 1 => correct answer/ 0 => incorrect
+    if(answer == correct_answer):
+        score.append(1)
+    else:
+        score.append(0)
+
+score_array = np.asarray(score)
+print("Performance in %: ", score_array.sum() / score_array.size)
