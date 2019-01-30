@@ -1,12 +1,27 @@
 # Handwritten-Digit-Recognition
+Handwritten number recognition with the MNIST Dataset using raw implementation, 
+tensorflow Layers and Keras.
 
-Handwritten number recognition with the MNIST Dataset
-
+### Neural Network.py
 3-layer neural network with stochastic gradient descent
 
-Activation function: Sigmoid
+Activation function for hidden layer: Sigmoid
 
-Initialization of the weights: Xavier initialization (Sample from normal distribution with 0 mean and 1/n Variance, where n is number of neurons feeding into)
+Activation function for output layer: None
 
-# Download the [data set](https://pjreddie.com/projects/mnist-in-csv/)
+### Neural Network_Layers_API.py
+4-layer neural network with mini-batch stochastic gradient
 
+Activation function for hidden layers: Hyperbolic tangent(tanh)
+
+Activation function for output layer: softmax
+
+### Neural Network_Keras_API.py
+4-layer neural network with mini-batch stochastic gradient
+
+Activation function for hidden layers: Hyperbolic tangent(tanh)
+
+Activation function for output layer: softmax
+
+#### Download the [data set](https://pjreddie.com/projects/mnist-in-csv/)
+Every implementation uses Xavier initialization for the weight matrices
